@@ -1,0 +1,1969 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>BankGuard | Dashboard</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --navy: #17365d;
+            --blue: #168fd1;
+            --cyan: #38bdf8;
+            --red: #ef4444;
+            --yellow: #e8aa13;
+            --green: #10a878;
+            --text: #14213d;
+            --muted: #71839d;
+            --border: #e5ebf3;
+            --background: #f4f7fc;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: "Inter", Arial, sans-serif;
+            background: var(--background);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            animation: fadeIn .5s ease both;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(18px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-9px); }
+        }
+
+        @keyframes growBar {
+            from { transform: scaleX(0); }
+            to { transform: scaleX(1); }
+        }
+
+        /* ================= NAVBAR ================= */
+
+        .navbar {
+            min-height: 72px;
+            background: var(--navy);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 5.5%;
+            gap: 20px;
+            color: white;
+            position: relative;
+            z-index: 5;
+            animation: slideUp .5s ease both;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 26px;
+            font-weight: 800;
+            color: white;
+            white-space: nowrap;
+        }
+
+        .logo i {
+            color: var(--cyan);
+            font-size: 28px;
+            transition: transform .3s;
+        }
+
+        .logo:hover i {
+            transform: rotate(-8deg) scale(1.1);
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 26px;
+            flex-wrap: wrap;
+        }
+
+        .nav-links a {
+            position: relative;
+            color: #e5edf8;
+            font-size: 15px;
+            font-weight: 600;
+            transition: color .25s;
+        }
+
+        .nav-links a::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            bottom: -6px;
+            width: 0;
+            height: 2px;
+            background: var(--cyan);
+            border-radius: 3px;
+            transition: width .25s;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--cyan);
+        }
+
+        .nav-links a:hover::after,
+        .nav-links a.active::after {
+            width: 100%;
+        }
+
+        /* ================= LOGOUT BUTTON ================= */
+
+        .logout-form {
+            display: inline-flex;
+            align-items: center;
+            margin: 0;
+        }
+
+        .nav-links .logout-link {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            padding: 0;
+            border: none;
+            border-radius: 0;
+            background: transparent;
+            color: #e5edf8;
+            font-family: inherit;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: color .25s ease;
+        }
+
+        .nav-links .logout-link i {
+            color: var(--cyan);
+            transition: transform .25s ease;
+        }
+
+        .nav-links .logout-link::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            bottom: -6px;
+            width: 0;
+            height: 2px;
+            background: var(--cyan);
+            border-radius: 3px;
+            transition: width .25s ease;
+        }
+
+        .nav-links .logout-link:hover {
+            color: var(--cyan);
+            background: transparent;
+            box-shadow: none;
+            transform: none;
+        }
+
+        .nav-links .logout-link:hover::after {
+            width: 100%;
+        }
+
+        .nav-links .logout-link:hover i {
+            transform: translateX(3px);
+        }
+
+        /* ================= HERO ================= */
+
+        .hero {
+            background:
+                radial-gradient(circle at 80% 35%, rgba(56,189,248,.17), transparent 32%),
+                linear-gradient(135deg, #17365d, #216da1);
+            padding: 58px 7% 75px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            animation: slideUp .6s ease both;
+        }
+
+        .hero::before,
+        .hero::after {
+            content: "";
+            position: absolute;
+            border: 1px solid rgba(255,255,255,.17);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .hero::before {
+            width: 420px;
+            height: 420px;
+            right: -120px;
+            top: -180px;
+            animation: float 8s ease-in-out infinite;
+        }
+
+        .hero::after {
+            width: 260px;
+            height: 260px;
+            right: 12%;
+            top: 80px;
+            animation: float 6s ease-in-out infinite reverse;
+        }
+
+        .hero-content {
+            max-width: 1400px;
+            margin: auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            padding: 10px 18px;
+            border: 1px solid rgba(150,220,255,.3);
+            border-radius: 30px;
+            background: rgba(255,255,255,.09);
+            color: #b9edff;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: .5px;
+        }
+
+        .hero h1 {
+            margin-top: 22px;
+            font-size: clamp(32px, 4vw, 48px);
+            line-height: 1.2;
+            font-weight: 800;
+            max-width: 850px;
+        }
+
+        .hero h1 span {
+            color: #7ddcff;
+        }
+
+        .hero p {
+            margin-top: 18px;
+            color: #e0edf8;
+            font-size: 15px;
+            line-height: 1.9;
+            max-width: 760px;
+        }
+
+        /* ================= DASHBOARD WRAPPER ================= */
+
+        .dashboard-wrapper {
+            width: 100%;
+            max-width: 1460px;
+            margin: -35px auto 60px;
+            padding: 0 30px;
+            position: relative;
+            z-index: 2;
+            flex: 1;
+        }
+
+        /* ================= STAT CARDS ================= */
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 22px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 18px;
+            padding: 25px;
+            min-height: 155px;
+            box-shadow: 0 12px 35px rgba(20,50,90,.07);
+            border: 1px solid var(--border);
+            position: relative;
+            overflow: hidden;
+            transition: transform .28s, box-shadow .28s, border-color .28s;
+            animation: slideUp .65s ease both;
+        }
+
+        .stat-card:nth-child(2) { animation-delay: .08s; }
+        .stat-card:nth-child(3) { animation-delay: .16s; }
+        .stat-card:nth-child(4) { animation-delay: .24s; }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 18px 40px rgba(20,50,90,.13);
+            border-color: #cbdff0;
+        }
+
+        .stat-card::after {
+            content: "";
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            right: -35px;
+            top: -40px;
+            background: rgba(56,189,248,.07);
+            transition: transform .35s;
+        }
+
+        .stat-card:hover::after {
+            transform: scale(1.4);
+        }
+
+        .stat-title {
+            color: #6b7d96;
+            font-size: 13px;
+            font-weight: 600;
+            padding-right: 45px;
+        }
+
+        .stat-number {
+            font-size: 35px;
+            font-weight: 800;
+            color: #102342;
+            margin-top: 12px;
+        }
+
+        .stat-description {
+            color: #8191a8;
+            font-size: 11px;
+            line-height: 1.6;
+            margin-top: 5px;
+        }
+
+        .stat-icon {
+            position: absolute;
+            right: 20px;
+            top: 25px;
+            width: 46px;
+            height: 46px;
+            border-radius: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 19px;
+            transition: transform .3s;
+        }
+
+        .stat-card:hover .stat-icon {
+            transform: scale(1.1) rotate(-4deg);
+        }
+
+        .blue-icon {
+            background: #e8f6ff;
+            color: #168fd1;
+        }
+
+        .red-icon {
+            background: #fff0ef;
+            color: #ef4444;
+        }
+
+        .yellow-icon {
+            background: #fff7df;
+            color: #e6a400;
+        }
+
+        .green-icon {
+            background: #e5f9f1;
+            color: #0da878;
+        }
+
+        /* ================= MAIN GRID ================= */
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1.8fr) minmax(280px, 1fr);
+            gap: 24px;
+            margin-top: 25px;
+            align-items: start;
+        }
+
+        .panel {
+            background: white;
+            border-radius: 20px;
+            padding: 28px;
+            border: 1px solid var(--border);
+            box-shadow: 0 10px 30px rgba(20,50,90,.06);
+            min-width: 0;
+            transition: box-shadow .3s, border-color .3s;
+            animation: slideUp .65s ease both;
+        }
+
+        .panel:hover {
+            box-shadow: 0 15px 35px rgba(20,50,90,.09);
+            border-color: #cbdff0;
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 15px;
+            margin-bottom: 22px;
+        }
+
+        .panel-title {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            font-size: 19px;
+            font-weight: 800;
+            color: #102342;
+        }
+
+        .panel-title i {
+            color: var(--blue);
+        }
+
+        .panel-subtitle {
+            font-size: 11px;
+            line-height: 1.6;
+            color: #8392a7;
+            margin-top: 6px;
+        }
+
+        .live-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            background: #e9f9f1;
+            color: #07845e;
+            padding: 7px 10px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .live-label span {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #10a878;
+        }
+
+        /* ================= RISK OVERVIEW ================= */
+
+        .overview-intro {
+            background: linear-gradient(115deg, #f0f8ff, #f4fffb);
+            border: 1px solid #dcecf7;
+            border-radius: 15px;
+            padding: 18px;
+            display: flex;
+            align-items: flex-start;
+            gap: 13px;
+            margin-bottom: 24px;
+        }
+
+        .overview-intro-icon {
+            width: 42px;
+            height: 42px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            background: #dff2ff;
+            color: #168fd1;
+            font-size: 18px;
+        }
+
+        .overview-intro h3 {
+            font-size: 13px;
+            color: #193354;
+            margin-bottom: 6px;
+        }
+
+        .overview-intro p {
+            font-size: 12px;
+            line-height: 1.8;
+            color: #657991;
+        }
+
+        .distribution-title {
+            font-size: 13px;
+            font-weight: 800;
+            color: #243753;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .distribution-title i {
+            color: #168fd1;
+        }
+
+        .risk-item {
+            margin-bottom: 22px;
+            padding: 15px;
+            border: 1px solid #edf1f6;
+            border-radius: 14px;
+            transition: transform .25s, box-shadow .25s;
+        }
+
+        .risk-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(20,50,90,.06);
+        }
+
+        .risk-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .risk-label {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #243753;
+        }
+
+        .risk-count {
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--text);
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .red-dot { background: var(--red); }
+        .yellow-dot { background: #f2b01e; }
+        .green-dot { background: var(--green); }
+
+        .risk-badge {
+            display: inline-block;
+            margin-left: 3px;
+            padding: 4px 7px;
+            border-radius: 5px;
+            font-size: 9px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .3px;
+        }
+
+        .badge-high {
+            background: #fff0ef;
+            color: #d92d20;
+        }
+
+        .badge-medium {
+            background: #fff7df;
+            color: #a66b00;
+        }
+
+        .badge-low {
+            background: #e5f9f1;
+            color: #07845e;
+        }
+
+        .progress {
+            height: 10px;
+            background: #edf1f6;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            border-radius: 20px;
+            transform: scaleX(0);
+            transform-origin: left center;
+            animation: growBar 1s .2s ease forwards;
+        }
+
+        .red-bar {
+            background: linear-gradient(90deg, #ef4444, #ff7a70);
+        }
+
+        .yellow-bar {
+            background: linear-gradient(90deg, #e8aa13, #f5ce59);
+        }
+
+        .green-bar {
+            background: linear-gradient(90deg, #10a878, #42d6a0);
+        }
+
+        .risk-bottom {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-top: 9px;
+        }
+
+        .risk-description {
+            font-size: 10px;
+            color: #8191a8;
+            line-height: 1.6;
+        }
+
+        .percentage {
+            font-size: 12px;
+            font-weight: 800;
+            color: #43556d;
+            white-space: nowrap;
+        }
+
+        /* ================= DISTRIBUTION SUMMARY ================= */
+
+        .distribution-summary {
+            padding: 18px;
+            border-radius: 15px;
+            background: #f8faff;
+            border: 1px solid #e7edf6;
+            margin-top: 5px;
+        }
+
+        .distribution-summary-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 13px;
+        }
+
+        .distribution-summary h3 {
+            font-size: 12px;
+            color: #243753;
+        }
+
+        .distribution-summary strong {
+            font-size: 12px;
+            color: #168fd1;
+        }
+
+        .stacked-bar {
+            display: flex;
+            height: 13px;
+            border-radius: 20px;
+            overflow: hidden;
+            background: #e8edf4;
+        }
+
+        .stacked-segment {
+            height: 100%;
+            transition: width .7s ease;
+        }
+
+        .stacked-high { background: #ef4444; }
+        .stacked-medium { background: #f2b01e; }
+        .stacked-low { background: #10a878; }
+
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 13px;
+            margin-top: 14px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 10px;
+            color: #64758b;
+        }
+
+        .legend-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 3px;
+        }
+
+        /* ================= EMPTY STATE ================= */
+
+        .empty-state {
+            text-align: center;
+            padding: 35px 20px;
+            border: 1px dashed #ccd8e6;
+            border-radius: 15px;
+            background: #fbfdff;
+        }
+
+        .empty-icon {
+            width: 58px;
+            height: 58px;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #e8f6ff;
+            color: #168fd1;
+            border-radius: 18px;
+            font-size: 24px;
+        }
+
+        .empty-state h3 {
+            color: #193354;
+            font-size: 15px;
+            margin-bottom: 8px;
+        }
+
+        .empty-state p {
+            color: #71839d;
+            font-size: 12px;
+            line-height: 1.8;
+            max-width: 360px;
+            margin: auto;
+        }
+
+        /* ================= RISK GUIDE ================= */
+
+        .guide-section {
+            margin-top: 27px;
+            padding-top: 23px;
+            border-top: 1px solid #edf1f6;
+        }
+
+        .guide-heading {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            color: #193354;
+            font-size: 14px;
+            font-weight: 800;
+            margin-bottom: 15px;
+        }
+
+        .guide-heading i {
+            color: #168fd1;
+        }
+
+        .guide-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .guide-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 13px;
+            background: #fbfcfe;
+            border: 1px solid #edf1f6;
+            border-radius: 12px;
+        }
+
+        .guide-item-icon {
+            width: 32px;
+            height: 32px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 9px;
+            font-size: 13px;
+        }
+
+        .guide-item h4 {
+            font-size: 11px;
+            color: #243753;
+            margin-bottom: 5px;
+        }
+
+        .guide-item p {
+            font-size: 11px;
+            color: #71839d;
+            line-height: 1.7;
+        }
+
+        /* ================= SECURITY CENTER ================= */
+
+        .security-box {
+            background: linear-gradient(145deg, #effcff, #f8fffc);
+            border: 1px solid #cceee9;
+            border-radius: 17px;
+            padding: 23px;
+        }
+
+        .security-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 14px;
+            background: #dff8f1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #0ba58a;
+            font-size: 21px;
+            margin-bottom: 18px;
+            transition: transform .3s;
+        }
+
+        .security-box:hover .security-icon {
+            transform: translateY(-4px);
+        }
+
+        .security-box h3 {
+            color: #122542;
+            font-size: 17px;
+            margin-bottom: 10px;
+        }
+
+        .security-box p {
+            color: #71839d;
+            font-size: 12px;
+            line-height: 1.9;
+        }
+
+        .security-features {
+            display: flex;
+            flex-direction: column;
+            gap: 13px;
+            margin-top: 20px;
+            padding-top: 18px;
+            border-top: 1px solid #dcefe9;
+        }
+
+        .security-feature {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-size: 11px;
+            line-height: 1.7;
+            color: #53677f;
+        }
+
+        .security-feature i {
+            color: #0ba58a;
+            margin-top: 3px;
+        }
+
+        /* ================= ACTION GUIDE ================= */
+
+        .action-guide {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 15px;
+            background: #f8faff;
+            border: 1px solid #e7edf6;
+        }
+
+        .action-guide h3 {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            font-size: 13px;
+            color: #193354;
+            margin-bottom: 16px;
+        }
+
+        .action-guide h3 i {
+            color: #168fd1;
+        }
+
+        .action-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .action-step:last-child {
+            margin-bottom: 0;
+        }
+
+        .step-number {
+            width: 24px;
+            height: 24px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #e3f3ff;
+            color: #168fd1;
+            border-radius: 8px;
+            font-size: 10px;
+            font-weight: 800;
+        }
+
+        .action-step p {
+            color: #657991;
+            font-size: 11px;
+            line-height: 1.8;
+        }
+
+        .action-step strong {
+            color: #243753;
+        }
+
+        /* ================= ACTION BUTTONS ================= */
+
+        .action-btn {
+            margin-top: 15px;
+            width: 100%;
+            border-radius: 12px;
+            padding: 14px 16px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+            transition: transform .25s, box-shadow .25s, background .25s;
+        }
+
+        .analyze-btn {
+            background: linear-gradient(135deg, #168fd1, #24b7e8);
+            color: white;
+            box-shadow: 0 9px 22px rgba(22,143,209,.18);
+        }
+
+        .analyze-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 13px 27px rgba(22,143,209,.28);
+            color: white;
+        }
+
+        .history-btn {
+            border: 1px solid #dce5ef;
+            background: white;
+            color: #193354;
+        }
+
+        .history-btn:hover {
+            transform: translateY(-2px);
+            background: #f3f9fd;
+            border-color: #8ed4f2;
+            color: var(--blue);
+        }
+
+        .action-btn:active {
+            transform: scale(.98);
+        }
+
+        /* ================= FOOTER ================= */
+
+        .site-footer {
+            background: #102b4d;
+            color: #c1d0e3;
+            padding: 50px 7% 20px;
+            margin-top: auto;
+            width: 100%;
+        }
+
+        .footer-grid {
+            max-width: 1400px;
+            margin: auto;
+            display: grid;
+            grid-template-columns: 1.4fr 1fr 1fr;
+            gap: 40px;
+        }
+
+        .footer-brand {
+            color: white;
+            font-size: 25px;
+            font-weight: 800;
+            margin-bottom: 15px;
+        }
+
+        .footer-brand i {
+            color: #7ddcff;
+            margin-right: 8px;
+        }
+
+        .footer-description {
+            color: #c1d0e3;
+            font-size: 12px;
+            line-height: 1.9;
+            max-width: 370px;
+        }
+
+        .footer-column h3 {
+            color: white;
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 18px;
+        }
+
+        .footer-link {
+            display: block;
+            width: fit-content;
+            color: #c1d0e3;
+            font-size: 12px;
+            margin-bottom: 12px;
+            transition: color .25s, padding-left .25s;
+        }
+
+        .footer-link:hover {
+            color: #7ddcff;
+            padding-left: 4px;
+        }
+
+        .footer-notice,
+        .footer-disclaimer {
+            max-width: 1400px;
+            margin: 22px auto 0;
+            padding: 16px 19px;
+            border-radius: 10px;
+            font-size: 11px;
+            line-height: 1.9;
+        }
+
+        .footer-notice {
+            background: rgba(239,68,68,.09);
+            border: 1px solid rgba(239,68,68,.23);
+        }
+
+        .footer-notice strong {
+            color: #fecaca;
+        }
+
+        .footer-disclaimer {
+            background: rgba(56,189,248,.07);
+            border: 1px solid rgba(56,189,248,.18);
+        }
+
+        .footer-disclaimer strong {
+            color: #bae6fd;
+        }
+
+        .footer-bottom {
+            max-width: 1400px;
+            margin: 28px auto 0;
+            padding-top: 20px;
+            border-top: 1px solid rgba(193,208,227,.22);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            font-size: 11px;
+        }
+
+        .footer-bottom span {
+            color: #7ddcff;
+            font-weight: 700;
+        }
+
+        /* ================= SCROLL REVEAL ================= */
+
+        .scroll-reveal {
+            opacity: 0;
+            transform: translateY(15px);
+            transition: opacity .55s ease, transform .55s ease;
+        }
+
+        .scroll-reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ================= RESPONSIVE ================= */
+
+        @media (max-width: 1150px) {
+            .navbar {
+                padding-left: 4%;
+                padding-right: 4%;
+            }
+
+            .nav-links {
+                gap: 17px;
+            }
+
+            .nav-links a,
+            .nav-links .logout-link {
+                font-size: 16px;
+            }
+        }
+
+        @media (max-width: 1050px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                align-items: flex-start;
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .nav-links {
+                width: 100%;
+                gap: 20px;
+            }
+
+            .footer-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 30px;
+            }
+
+            .footer-brand-section {
+                grid-column: 1 / -1;
+            }
+        }
+
+        @media (max-width: 650px) {
+            .navbar {
+                padding: 16px 20px;
+            }
+
+            .logo {
+                font-size: 23px;
+            }
+
+            .nav-links {
+                gap: 15px;
+            }
+
+            .nav-links a,
+            .nav-links .logout-link {
+                font-size: 12px;
+            }
+
+            .hero {
+                padding: 45px 24px 65px;
+            }
+
+            .hero p {
+                font-size: 13px;
+            }
+
+            .dashboard-wrapper {
+                padding: 0 15px;
+            }
+
+            .stats-grid {
+                gap: 14px;
+            }
+
+            .stat-card {
+                padding: 19px;
+                min-height: 140px;
+            }
+
+            .stat-number {
+                font-size: 30px;
+            }
+
+            .stat-icon {
+                width: 39px;
+                height: 39px;
+                right: 14px;
+                top: 18px;
+            }
+
+            .panel {
+                padding: 22px 17px;
+            }
+
+            .panel-header {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .panel-title {
+                font-size: 17px;
+            }
+
+            .risk-item {
+                padding: 12px;
+            }
+
+            .risk-label {
+                font-size: 11px;
+                flex-wrap: wrap;
+            }
+
+            .risk-bottom {
+                align-items: flex-start;
+            }
+
+            .risk-description {
+                max-width: 75%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .site-footer {
+                padding: 40px 22px 20px;
+            }
+
+            .footer-grid {
+                grid-template-columns: 1fr;
+                gap: 25px;
+            }
+
+            .footer-brand-section {
+                grid-column: auto;
+            }
+
+            .live-label {
+                font-size: 9px;
+            }
+
+            .overview-intro {
+                padding: 14px;
+            }
+
+            .legend {
+                gap: 10px;
+            }
+
+            .nav-links {
+                gap: 12px;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-links {
+                gap: 12px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: .01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: .01ms !important;
+                scroll-behavior: auto !important;
+            }
+
+            .scroll-reveal {
+                opacity: 1;
+                transform: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+
+        <a href="{% url 'home' %}" class="logo">
+            <i class="bi bi-shield-lock-fill"></i>
+
+            BankGuard
+        </a>
+
+        <div class="nav-links">
+            <a href="{% url 'home' %}">Home</a>
+            <a href="{% url 'home' %}#detector">Detector</a>
+            <a href="{% url 'dashboard' %}" class="active">Dashboard</a>
+            <a href="{% url 'history' %}">History</a>
+
+            <!-- Correct POST Logout -->
+            <form method="POST"
+                  action="{% url 'logout' %}"
+                  class="logout-form">
+                {% csrf_token %}
+
+                <button type="submit" class="logout-link">
+                    <span>Logout</span>
+                </button>
+            </form>
+        </div>
+
+    </nav>
+
+    <!-- HERO -->
+    <section class="hero">
+        <div class="hero-content">
+
+            <div class="hero-badge">
+                <i class="fa-solid fa-chart-line"></i>
+                SECURITY ANALYTICS
+            </div>
+
+            <h1>Phishing Detection <span>Dashboard</span></h1>
+
+            <p>
+                Understand your email security at a glance. Review risk
+                levels, explore analysis statistics, and learn how to
+                respond to potentially suspicious bank-related emails.
+            </p>
+
+        </div>
+    </section>
+
+    <!-- DASHBOARD CONTENT -->
+    <main class="dashboard-wrapper" id="dashboard">
+
+        <!-- STATISTICS -->
+        <section class="stats-grid">
+
+            <div class="stat-card">
+                <div class="stat-title">Total Analyses</div>
+                <div class="stat-number">{{ total|default:0 }}</div>
+                <div class="stat-description">Total emails analyzed</div>
+                <div class="stat-icon blue-icon">
+                    <i class="fa-solid fa-envelope-circle-check"></i>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-title">High Risk</div>
+                <div class="stat-number">{{ phishing|default:0 }}</div>
+                <div class="stat-description">Emails flagged as high risk</div>
+                <div class="stat-icon red-icon">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-title">Medium Risk</div>
+                <div class="stat-number">{{ suspicious|default:0 }}</div>
+                <div class="stat-description">Emails requiring caution</div>
+                <div class="stat-icon yellow-icon">
+                    <i class="fa-solid fa-shield"></i>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-title">Low Risk</div>
+                <div class="stat-number">{{ safe|default:0 }}</div>
+                <div class="stat-description">Emails with fewer detected indicators</div>
+                <div class="stat-icon green-icon">
+                    <i class="fa-solid fa-circle-check"></i>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- MAIN GRID -->
+        <section class="main-grid">
+
+            <!-- RISK OVERVIEW -->
+            <section class="panel" id="risk-overview">
+
+                <div class="panel-header">
+                    <div>
+                        <div class="panel-title">
+                            <i class="fa-solid fa-chart-pie"></i>
+                            Risk Overview
+                        </div>
+                        <div class="panel-subtitle">
+                            Understand how your analyzed emails are classified
+                        </div>
+                    </div>
+
+                    <div class="live-label">
+                        <span></span>
+                        Analysis Summary
+                    </div>
+                </div>
+
+                <div class="overview-intro">
+                    <div class="overview-intro-icon">
+                        <i class="fa-solid fa-lightbulb"></i>
+                    </div>
+
+                    <div>
+                        <h3>What does this overview tell you?</h3>
+                        <p>
+                            This section summarizes the risk levels assigned
+                            to analyzed emails. Compare the counts and
+                            percentages to understand how many emails need
+                            extra attention. The results are based on
+                            BankGuard's rule-based analysis.
+                        </p>
+                    </div>
+                </div>
+
+                {% if total %}
+
+                <div class="distribution-title">
+                    <i class="fa-solid fa-chart-column"></i>
+                    Risk Distribution
+                </div>
+
+                <!-- HIGH RISK -->
+                <div class="risk-item">
+                    <div class="risk-top">
+                        <div class="risk-label">
+                            <span class="dot red-dot"></span>
+                            High Risk
+                            <span class="risk-badge badge-high">Attention</span>
+                        </div>
+                        <div class="risk-count">{{ phishing|default:0 }}</div>
+                    </div>
+
+                    <div class="progress">
+                        <div class="progress-bar red-bar"
+                             style="width: {% widthratio phishing total 100 %}%;">
+                        </div>
+                    </div>
+
+                    <div class="risk-bottom">
+                        <div class="risk-description">
+                            Potential phishing indicators detected.
+                            Verify the sender before taking action.
+                        </div>
+                        <div class="percentage">
+                            {% widthratio phishing total 100 %}%
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MEDIUM RISK -->
+                <div class="risk-item">
+                    <div class="risk-top">
+                        <div class="risk-label">
+                            <span class="dot yellow-dot"></span>
+                            Medium Risk
+                            <span class="risk-badge badge-medium">Caution</span>
+                        </div>
+                        <div class="risk-count">{{ suspicious|default:0 }}</div>
+                    </div>
+
+                    <div class="progress">
+                        <div class="progress-bar yellow-bar"
+                             style="width: {% widthratio suspicious total 100 %}%;">
+                        </div>
+                    </div>
+
+                    <div class="risk-bottom">
+                        <div class="risk-description">
+                            Some suspicious indicators may be present.
+                            Check the email carefully.
+                        </div>
+                        <div class="percentage">
+                            {% widthratio suspicious total 100 %}%
+                        </div>
+                    </div>
+                </div>
+
+                <!-- LOW RISK -->
+                <div class="risk-item">
+                    <div class="risk-top">
+                        <div class="risk-label">
+                            <span class="dot green-dot"></span>
+                            Low Risk
+                            <span class="risk-badge badge-low">Lower Risk</span>
+                        </div>
+                        <div class="risk-count">{{ safe|default:0 }}</div>
+                    </div>
+
+                    <div class="progress">
+                        <div class="progress-bar green-bar"
+                             style="width: {% widthratio safe total 100 %}%;">
+                        </div>
+                    </div>
+
+                    <div class="risk-bottom">
+                        <div class="risk-description">
+                            Fewer suspicious indicators were detected.
+                            Continue to follow safe email practices.
+                        </div>
+                        <div class="percentage">
+                            {% widthratio safe total 100 %}%
+                        </div>
+                    </div>
+                </div>
+
+                <!-- OVERALL DISTRIBUTION -->
+                <div class="distribution-summary">
+
+                    <div class="distribution-summary-top">
+                        <h3>
+                            <i class="fa-solid fa-chart-simple"></i>
+                            Overall Distribution
+                        </h3>
+                        <strong>{{ total }} Emails</strong>
+                    </div>
+
+                    <div class="stacked-bar"
+                         role="img"
+                         aria-label="Distribution of high, medium, and low risk email analyses">
+
+                        <div class="stacked-segment stacked-high"
+                             style="width: {% widthratio phishing total 100 %}%;">
+                        </div>
+
+                        <div class="stacked-segment stacked-medium"
+                             style="width: {% widthratio suspicious total 100 %}%;">
+                        </div>
+
+                        <div class="stacked-segment stacked-low"
+                             style="width: {% widthratio safe total 100 %}%;">
+                        </div>
+                    </div>
+
+                    <div class="legend">
+                        <div class="legend-item">
+                            <span class="legend-dot" style="background:#ef4444"></span>
+                            High: {{ phishing|default:0 }}
+                        </div>
+
+                        <div class="legend-item">
+                            <span class="legend-dot" style="background:#f2b01e"></span>
+                            Medium: {{ suspicious|default:0 }}
+                        </div>
+
+                        <div class="legend-item">
+                            <span class="legend-dot" style="background:#10a878"></span>
+                            Low: {{ safe|default:0 }}
+                        </div>
+                    </div>
+
+                </div>
+
+                {% else %}
+
+                <!-- EMPTY STATE -->
+                <div class="empty-state">
+
+                    <div class="empty-icon">
+                        <i class="fa-solid fa-chart-line"></i>
+                    </div>
+
+                    <h3>No Analysis Data Yet</h3>
+
+                    <p>
+                        Your risk overview will appear here after you analyze
+                        an email. Start with a sample bank-related email to
+                        see its risk classification and updated statistics.
+                    </p>
+
+                    <a href="{% url 'home' %}#detector"
+                       class="action-btn analyze-btn">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        Analyze Your First Email
+                    </a>
+
+                </div>
+
+                {% endif %}
+
+                <!-- RISK INTERPRETATION GUIDE -->
+                <div class="guide-section">
+
+                    <div class="guide-heading">
+                        <i class="fa-solid fa-book-open"></i>
+                        Understanding Risk Levels
+                    </div>
+
+                    <div class="guide-list">
+
+                        <div class="guide-item">
+                            <div class="guide-item-icon red-icon">
+                                <i class="fa-solid fa-triangle-exclamation"></i>
+                            </div>
+                            <div>
+                                <h4>High Risk — Be Extremely Careful</h4>
+                                <p>
+                                    The analysis found strong suspicious
+                                    indicators. Do not click links or provide
+                                    confidential information. Verify the message
+                                    using your bank's official channels.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="guide-item">
+                            <div class="guide-item-icon yellow-icon">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                            </div>
+                            <div>
+                                <h4>Medium Risk — Check Before Acting</h4>
+                                <p>
+                                    The message contains some indicators that
+                                    need review. Examine the sender, website
+                                    address, wording, and unexpected requests.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="guide-item">
+                            <div class="guide-item-icon green-icon">
+                                <i class="fa-solid fa-circle-check"></i>
+                            </div>
+                            <div>
+                                <h4>Low Risk — Stay Alert</h4>
+                                <p>
+                                    Fewer suspicious indicators were detected.
+                                    This does not guarantee the email is genuine.
+                                    Continue checking the sender and links.
+                                </p>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- SECURITY CENTER -->
+            <aside class="panel">
+
+                <div class="panel-header">
+                    <div>
+                        <div class="panel-title">
+                            <i class="bi bi-shield-lock-fill"></i>
+                            Security Center
+                        </div>
+                        <div class="panel-subtitle">
+                            Tools and tips for safer email analysis
+                        </div>
+                    </div>
+                </div>
+
+                <div class="security-box">
+
+                    <div class="security-icon">
+                        <i class="fa-solid fa-user-shield"></i>
+                    </div>
+
+                    <h3>Bank Email Security</h3>
+
+                    <p>
+                        BankGuard checks email text for suspicious keywords,
+                        requests for sensitive information, risky URLs, and
+                        possible bank-domain mismatches.
+                    </p>
+
+                    <div class="security-features">
+
+                        <div class="security-feature">
+                            <i class="fa-solid fa-check-circle"></i>
+                            <span>Suspicious keyword and urgency detection</span>
+                        </div>
+
+                        <div class="security-feature">
+                            <i class="fa-solid fa-check-circle"></i>
+                            <span>OTP, PIN, CVV, and password request indicators</span>
+                        </div>
+
+                        <div class="security-feature">
+                            <i class="fa-solid fa-check-circle"></i>
+                            <span>Suspicious URL and domain checks</span>
+                        </div>
+
+                        <div class="security-feature">
+                            <i class="fa-solid fa-check-circle"></i>
+                            <span>Risk score and category classification</span>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- WHAT TO DO -->
+                <div class="action-guide">
+
+                    <h3>
+                        <i class="fa-solid fa-list-check"></i>
+                        What Should You Do?
+                    </h3>
+
+                    <div class="action-step">
+                        <div class="step-number">1</div>
+                        <p>
+                            <strong>Check the sender.</strong>
+                            Verify the sender's email address carefully.
+                        </p>
+                    </div>
+
+                    <div class="action-step">
+                        <div class="step-number">2</div>
+                        <p>
+                            <strong>Inspect links.</strong>
+                            Avoid unexpected links and unfamiliar websites.
+                        </p>
+                    </div>
+
+                    <div class="action-step">
+                        <div class="step-number">3</div>
+                        <p>
+                            <strong>Protect your details.</strong>
+                            Never share your OTP, PIN, CVV, or password
+                            in response to an email.
+                        </p>
+                    </div>
+
+                    <div class="action-step">
+                        <div class="step-number">4</div>
+                        <p>
+                            <strong>Verify independently.</strong>
+                            Contact your bank using its official website
+                            or customer-support number.
+                        </p>
+                    </div>
+
+                </div>
+
+                <!-- ACTION LINKS -->
+                <a href="{% url 'home' %}#detector"
+                   class="action-btn analyze-btn">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    Analyze New Email
+                </a>
+
+                <a href="{% url 'history' %}"
+                   class="action-btn history-btn">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                    View Analysis History
+                </a>
+
+            </aside>
+
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="site-footer">
+
+        <div class="footer-grid">
+
+            <div class="footer-brand-section">
+                <div class="footer-brand">
+                   <i class="bi bi-shield-lock-fill"></i>
+                   
+                    BankGuard
+                </div>
+
+                <p class="footer-description">
+                    BankGuard helps identify potentially fraudulent bank-related
+                    emails using keyword detection, suspicious URL analysis,
+                    domain mismatch checks, and risk-based classification.
+                </p>
+            </div>
+
+            <div class="footer-column">
+                <h3>Security</h3>
+
+                <a href="{% url 'home' %}#features" class="footer-link">
+                    Email Security
+                </a>
+
+                <a href="{% url 'home' %}#detector" class="footer-link">
+                    Phishing Detection
+                </a>
+
+                <a href="{% url 'home' %}#how" class="footer-link">
+                    How It Works
+                </a>
+
+                <a href="{% url 'home' %}#detector" class="footer-link">
+                    URL Analysis
+                </a>
+            </div>
+
+            <div class="footer-column">
+                <h3>Quick Links</h3>
+
+                <a href="{% url 'home' %}" class="footer-link">Home</a>
+
+                <a href="{% url 'home' %}#how" class="footer-link">
+                    How It Works
+                </a>
+
+                <a href="{% url 'home' %}#detector" class="footer-link">
+                    Analyze Email
+                </a>
+
+                <a href="{% url 'home' %}#features" class="footer-link">
+                    Features
+                </a>
+
+                <a href="{% url 'dashboard' %}" class="footer-link">
+                    Dashboard
+                </a>
+
+                <a href="{% url 'history' %}" class="footer-link">
+                    Analysis History
+                </a>
+            </div>
+
+        </div>
+
+        <div class="footer-notice">
+            <strong>
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                Security Notice:
+            </strong>
+
+            Never enter real passwords, OTPs, PINs, CVVs, or other confidential
+            banking information into this demonstration application. Use sample
+            email content for testing.
+        </div>
+
+        <div class="footer-disclaimer">
+            <strong>
+                <i class="fa-solid fa-circle-info"></i>
+                Disclaimer:
+            </strong>
+
+            BankGuard uses rule-based analysis to identify potential phishing
+            emails. Results are indicative and may not detect every phishing
+            attempt. A low-risk result does not guarantee that an email is safe.
+            Always verify suspicious messages through your bank's official
+            website or customer-support channels.
+        </div>
+
+        <div class="footer-bottom">
+            <div>
+                &copy; {% now "Y" %}
+                <span>BankGuard</span> |
+                Bank Email Phishing Detection System
+            </div>
+
+            <div>MCA Mini Project</div>
+        </div>
+
+    </footer>
+
+    <!-- JAVASCRIPT ANIMATIONS -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const reducedMotion = window.matchMedia(
+                "(prefers-reduced-motion: reduce)"
+            ).matches;
+
+            /* Reveal elements on scroll */
+            const revealElements = document.querySelectorAll(
+                ".panel, .overview-intro, .risk-item, " +
+                ".distribution-summary, .guide-item, " +
+                ".security-box, .action-guide, " +
+                ".footer-brand-section, .footer-column, " +
+                ".footer-notice, .footer-disclaimer"
+            );
+
+            if (!reducedMotion && "IntersectionObserver" in window) {
+
+                revealElements.forEach(function (element) {
+                    element.classList.add("scroll-reveal");
+                });
+
+                const observer = new IntersectionObserver(
+                    function (entries, currentObserver) {
+
+                        entries.forEach(function (entry) {
+                            if (entry.isIntersecting) {
+                                entry.target.classList.add("visible");
+                                currentObserver.unobserve(entry.target);
+                            }
+                        });
+
+                    },
+                    { threshold: 0.10 }
+                );
+
+                revealElements.forEach(function (element) {
+                    observer.observe(element);
+                });
+            }
+
+            /* Animate dashboard statistic numbers */
+            if (!reducedMotion) {
+
+                document.querySelectorAll(".stat-number").forEach(
+                    function (counter) {
+
+                        const target = parseInt(
+                            counter.textContent.trim(),
+                            10
+                        );
+
+                        if (Number.isNaN(target) || target < 0) {
+                            return;
+                        }
+
+                        const duration = 900;
+                        let startTime = null;
+
+                        function updateCounter(timestamp) {
+
+                            if (startTime === null) {
+                                startTime = timestamp;
+                            }
+
+                            const progress = Math.min(
+                                (timestamp - startTime) / duration,
+                                1
+                            );
+
+                            const eased = 1 - Math.pow(1 - progress, 3);
+
+                            counter.textContent = Math.round(
+                                target * eased
+                            );
+
+                            if (progress < 1) {
+                                requestAnimationFrame(updateCounter);
+                            } else {
+                                counter.textContent = target;
+                            }
+                        }
+
+                        counter.textContent = "0";
+                        requestAnimationFrame(updateCounter);
+                    }
+                );
+            }
+
+        });
+    </script>
+
+</body>
+</html>
