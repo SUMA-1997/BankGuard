@@ -1,10 +1,17 @@
 
 from django.shortcuts import render, redirect
-from django.contrib.auth import login as auth_login
-from django.contrib.auth import logout as auth_logout
+from django.contrib.auth import (
+    login as auth_login,
+    logout as auth_logout,
+    authenticate,
+    get_user_model,
+)
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib import messages
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
+from django.views.decorators.http import require_POST
 
 from urllib.parse import urlparse
 from .models import EmailAnalysis
@@ -13,8 +20,12 @@ import re
 import ipaddress
 
 
+User = get_user_model()
+
+
 # ==================================================
 # REGISTRATION
+# Username + Email Address + Password
 # ==================================================
 
 def register_view(request):
@@ -23,19 +34,56 @@ def register_view(request):
 
     if request.method == "POST":
         form = UserCreationForm(request.POST)
+        email = request.POST.get("email", "").strip()
 
         if form.is_valid():
-            form.save()
+            # Validate the email address.
+            try:
+                validate_email(email)
+            except ValidationError:
+                messages.error(
+                    request,
+                    "Please enter a valid email address."
+                )
+                return render(
+                    request,
+                    "detector/register.html",
+                    {"form": form}
+                )
+
+            # Email addresses must be unique.
+            if User.objects.filter(email__iexact=email).exists():
+                messages.error(
+                    request,
+                    "This email address is already registered. "
+                    "Please use another email address."
+                )
+                return render(
+                    request,
+                    "detector/register.html",
+                    {"form": form}
+                )
+
+            # Save the username and password.
+            user = form.save()
+
+            # Save the email address to the user account.
+            user.email = email
+            user.save(update_fields=["email"])
+
             messages.success(
                 request,
-                "Registration successful! Please log in."
+                "Registration successful! Please log in "
+                "using your email address and password."
             )
+
             return redirect("login")
 
         messages.error(
             request,
             "Please correct the errors in the registration form."
         )
+
     else:
         form = UserCreationForm()
 
@@ -47,35 +95,66 @@ def register_view(request):
 
 
 # ==================================================
-# LOGIN
+# LOGIN USING EMAIL ADDRESS AND PASSWORD
 # ==================================================
 
 def login_view(request):
     if request.user.is_authenticated:
         return redirect("home")
 
+    form = AuthenticationForm(request)
+
     if request.method == "POST":
-        form = AuthenticationForm(
-            request,
-            data=request.POST
-        )
+        email = request.POST.get("email", "").strip()
+        password = request.POST.get("password", "")
 
-        if form.is_valid():
-            user = form.get_user()
-            auth_login(request, user)
-
-            messages.success(
+        if not email or not password:
+            messages.error(
                 request,
-                "Login successful!"
+                "Please enter your email address and password."
             )
-            return redirect("home")
 
-        messages.error(
-            request,
-            "Invalid username or password."
-        )
-    else:
-        form = AuthenticationForm(request)
+        else:
+            try:
+                validate_email(email)
+
+            except ValidationError:
+                messages.error(
+                    request,
+                    "Please enter a valid email address."
+                )
+
+            else:
+                # Find the account using the registered email.
+                user_record = User.objects.filter(
+                    email__iexact=email
+                ).first()
+
+                if user_record is not None:
+                    # Django's default authentication backend
+                    # authenticates using the username.
+                    user = authenticate(
+                        request,
+                        username=user_record.get_username(),
+                        password=password,
+                    )
+                else:
+                    user = None
+
+                if user is not None:
+                    auth_login(request, user)
+
+                    messages.success(
+                        request,
+                        "Login successful! Welcome to BankGuard."
+                    )
+
+                    return redirect("home")
+
+                messages.error(
+                    request,
+                    "Invalid email address or password."
+                )
 
     return render(
         request,
@@ -88,18 +167,16 @@ def login_view(request):
 # LOGOUT
 # ==================================================
 
+@login_required
+@require_POST
 def logout_view(request):
-    if request.method == "POST":
-        auth_logout(request)
+    auth_logout(request)
 
-        messages.success(
-            request,
-            "You have logged out successfully."
-        )
+    messages.success(
+        request,
+        "You have logged out successfully."
+    )
 
-        return redirect("login")
-
-    # Logout should be submitted using POST.
     return redirect("login")
 
 
@@ -132,18 +209,21 @@ def extract_urls(text):
 # ==================================================
 
 def is_ip_address(hostname):
+    """Return True if the hostname is an IP address."""
+
     if not hostname:
         return False
 
     try:
         ipaddress.ip_address(hostname.strip("[]"))
         return True
+
     except ValueError:
         return False
 
 
 # ==================================================
-# HELPER: PHISHING ANALYSIS
+# HELPER: PHISHING EMAIL ANALYSIS
 # ==================================================
 
 def analyze_email(email_text):
@@ -159,14 +239,15 @@ def analyze_email(email_text):
 
     def add_reason(points, message):
         nonlocal score
+
         score += points
 
         if message not in reasons:
             reasons.append(message)
 
-    # ----------------------------------------------
-    # PHISHING KEYWORDS
-    # ----------------------------------------------
+    # --------------------------------------------------
+    # 1. PHISHING KEYWORDS
+    # --------------------------------------------------
 
     phishing_keywords = [
         "urgent",
@@ -193,9 +274,9 @@ def analyze_email(email_text):
             score += 5
             detected_keywords.append(keyword)
 
-    # ----------------------------------------------
-    # SENSITIVE INFORMATION REQUESTS
-    # ----------------------------------------------
+    # --------------------------------------------------
+    # 2. SENSITIVE INFORMATION
+    # --------------------------------------------------
 
     if "otp" in tokens:
         add_reason(
@@ -221,9 +302,9 @@ def analyze_email(email_text):
             "Email requests or mentions CVV information."
         )
 
-    # ----------------------------------------------
-    # URGENCY / THREATS
-    # ----------------------------------------------
+    # --------------------------------------------------
+    # 3. URGENCY AND THREATS
+    # --------------------------------------------------
 
     urgent_phrases = [
         "urgent",
@@ -240,9 +321,9 @@ def analyze_email(email_text):
             "Email uses urgent or threatening language."
         )
 
-    # ----------------------------------------------
-    # CLICK / VERIFICATION
-    # ----------------------------------------------
+    # --------------------------------------------------
+    # 4. CLICK AND VERIFICATION REQUESTS
+    # --------------------------------------------------
 
     if "click" in tokens and "here" in tokens:
         add_reason(
@@ -256,9 +337,9 @@ def analyze_email(email_text):
             "Email asks the user to verify an account or information."
         )
 
-    # ----------------------------------------------
-    # BANK ACCOUNT REFERENCES
-    # ----------------------------------------------
+    # --------------------------------------------------
+    # 5. BANK ACCOUNT REFERENCES
+    # --------------------------------------------------
 
     if "bank" in tokens and "account" in tokens:
         add_reason(
@@ -266,9 +347,9 @@ def analyze_email(email_text):
             "Email refers to a bank account."
         )
 
-    # ----------------------------------------------
-    # SUSPICIOUS OFFERS
-    # ----------------------------------------------
+    # --------------------------------------------------
+    # 6. SUSPICIOUS OFFERS
+    # --------------------------------------------------
 
     if "free" in tokens and "money" in tokens:
         add_reason(
@@ -282,9 +363,9 @@ def analyze_email(email_text):
             "Email contains suspicious prize or reward language."
         )
 
-    # ----------------------------------------------
-    # URL ANALYSIS
-    # ----------------------------------------------
+    # --------------------------------------------------
+    # 7. URL ANALYSIS
+    # --------------------------------------------------
 
     urls = extract_urls(email_text)
 
@@ -310,10 +391,7 @@ def analyze_email(email_text):
 
     for url in urls:
         parsed_url = urlparse(url)
-
-        hostname = (
-            parsed_url.hostname or ""
-        ).lower()
+        hostname = (parsed_url.hostname or "").lower().rstrip(".")
 
         # HTTP instead of HTTPS.
         if parsed_url.scheme.lower() == "http":
@@ -322,14 +400,14 @@ def analyze_email(email_text):
                 "Email contains an HTTP URL instead of HTTPS."
             )
 
-        # IP address used as the URL hostname.
+        # IP address used instead of a domain name.
         if is_ip_address(hostname):
             add_reason(
                 15,
                 "URL uses an IP address instead of a normal domain name."
             )
 
-        # @ symbol in the URL.
+        # @ symbol may obscure the destination.
         if "@" in url:
             add_reason(
                 15,
@@ -343,7 +421,7 @@ def analyze_email(email_text):
                 "URL is unusually long and may contain suspicious parameters."
             )
 
-        # Potentially suspicious domain extension.
+        # Suspicious domain extension.
         if any(
             hostname.endswith(extension)
             for extension in suspicious_extensions
@@ -369,9 +447,9 @@ def analyze_email(email_text):
             "Email contains a URL that should be checked carefully."
         )
 
-    # ----------------------------------------------
-    # BANK / DOMAIN MISMATCH
-    # ----------------------------------------------
+    # --------------------------------------------------
+    # 8. BANK AND DOMAIN MISMATCH
+    # --------------------------------------------------
 
     banks = {
         "sbi": "sbi.co.in",
@@ -416,9 +494,9 @@ def analyze_email(email_text):
                 )
             )
 
-    # ----------------------------------------------
-    # SCORE AND RISK CLASSIFICATION
-    # ----------------------------------------------
+    # --------------------------------------------------
+    # 9. FINAL SCORE AND RISK CLASSIFICATION
+    # --------------------------------------------------
 
     score = min(score, 100)
 
@@ -482,7 +560,6 @@ def home(request):
         "recommendation": "",
     }
 
-    # Display the most recent result after redirect.
     saved_result = request.session.pop(
         "latest_analysis_result",
         None
@@ -509,10 +586,8 @@ def home(request):
                 context
             )
 
-        # Analyze the submitted email.
         analysis = analyze_email(original_email)
 
-        # Save the analysis for the logged-in user.
         EmailAnalysis.objects.create(
             user=request.user,
             email_text=original_email,
@@ -522,7 +597,6 @@ def home(request):
             recommendation=analysis["recommendation"],
         )
 
-        # Store the result temporarily for the redirected GET.
         request.session["latest_analysis_result"] = {
             **analysis,
             "email": original_email,
